@@ -137,7 +137,7 @@ public class MemberServiceImpl implements MemberService {
 			
 			System.out.println("수정할 회원의 순번을 입력하세요 >>>>> ");
 			int num = sc.nextInt();
-			int memberId = (int) memberList.get(num-1).get("member_idx");
+			int memberId = Integer.parseInt(memberList.get(num-1).get("member_idx").toString());
 			
 			System.out.println("변경 될 연락처를 입력하세요 >>>>> ");
 			sc.nextLine();
@@ -177,7 +177,7 @@ public class MemberServiceImpl implements MemberService {
 			
 			System.out.println("삭제할 회원의 순번을 입력하세요 >>>>> ");
 			int num = sc.nextInt();
-			int memberId = (int) memberList.get(num-1).get("member_idx");
+			int memberId = Integer.parseInt(memberList.get(num-1).get("member_idx").toString());
 			
 			System.out.println("삭제 될 회원명을 입력하세요 >>>>> ");
 			sc.nextLine();
