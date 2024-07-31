@@ -153,7 +153,7 @@ public class MemberServiceImpl implements MemberService {
 			}		
 		}	
 	
-	// 3. 도서 정보 삭제
+	// 3. 회원 정보 삭제
 	public void deleteMember() {
 		System.out.print("회원명을 입력해 주세요 : ");
 		sc.nextLine();
@@ -226,7 +226,7 @@ public class MemberServiceImpl implements MemberService {
 
 	}
 	
-	//5. 도서 전체 정보 출력
+	//5. 회원 전체 정보 출력
 	public void printAllMembers() {
 		List<HashMap<String, Object>> bookList = new ArrayList();
 		bookList = mDAO.printAllMembers();
