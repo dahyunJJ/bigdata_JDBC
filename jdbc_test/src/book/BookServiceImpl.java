@@ -169,7 +169,7 @@ public class BookServiceImpl implements BookService {
 			
 			System.out.println("삭제할 도서의 순번을 입력하세요 >>>>> ");
 			int num = sc.nextInt();
-			int bookId = (int) bookList.get(num-1).get("book_id");
+			int bookId = Integer.parseInt(bookList.get(num-1).get("book_id").toString());
 			
 			System.out.println("삭제 될 도서명을 입력하세요 >>>>> ");
 			sc.nextLine();

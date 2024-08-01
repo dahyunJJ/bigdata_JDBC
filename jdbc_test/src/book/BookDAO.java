@@ -238,6 +238,7 @@ public class BookDAO {
 				rsMap.put("book_pubYear", rs.getString("book_pubYear"));
 				rsMap.put("book_isbn", rs.getString("book_isbn"));
 				rsMap.put("book_page", rs.getInt("book_page"));
+				rsMap.put("create_date", rs.getString("create_date"));
 				
 				
 				bookList.add(rsMap);
