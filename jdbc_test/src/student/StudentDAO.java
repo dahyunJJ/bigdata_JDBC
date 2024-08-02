@@ -460,9 +460,7 @@ public class StudentDAO {
 			
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setInt(1, studentIdx);
-			
-			
-			// pstmt.executeQuery(); // SELECT문
+						
 			resultChk = pstmt.executeUpdate(); // INSERT, UPDATE, DELETE
 			
 		}catch (SQLException e) {
