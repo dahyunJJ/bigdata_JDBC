@@ -136,7 +136,7 @@ public class StudentDAO {
 	}
 		
 	// 7. 전체 학생 조회
-	public List<HashMap<String, Object>> printAllStudent(){
+	public List<HashMap<String, Object>> printAllStudent(int studentIdx){
 		List<HashMap<String, Object>> studentList = new ArrayList();
 		
 		try {
@@ -168,10 +168,22 @@ public class StudentDAO {
 								 + "       sc.score_point\r\n"
 								 + "FROM tb_student_info st\r\n"
 								 + "LEFT JOIN tb_student_score sc\r\n"
-								 + "ON st.student_idx = sc.student_idx;";
+								 + "ON st.student_idx = sc.student_idx";
+			
+			if(studentIdx > 0) {
+				sql += " WHERE st.student_idx = ?;";				
+				
+			} else {
+				sql += ";";
+			}
 			
 			pstmt = conn.prepareStatement(sql);			
+			if (studentIdx > 0) {
+				pstmt.setInt(1, studentIdx);
+			} 
+			
 			rs = pstmt.executeQuery();
+			
 						
 			while(rs.next()) { // rs.next()가 참일 때 -> rs 안에 다음 값이 있는지
 				HashMap<String, Object> rsMap = new HashMap<String, Object>();
@@ -182,11 +194,11 @@ public class StudentDAO {
 				rsMap.put("studentAddr", rs.getString("student_addr"));
 				rsMap.put("studentPhone", rs.getString("student_phone"));	
 				
-				rsMap.put("season", rs.getInt("score_season"));				
-				rsMap.put("semester", rs.getString("score_semester"));				
-				rsMap.put("examType", rs.getString("시험구분"));				
-				rsMap.put("subject", rs.getString("score_subject"));				
-				rsMap.put("point", rs.getInt("score_point"));				
+				rsMap.put("scoreSeason", rs.getInt("score_season"));				
+				rsMap.put("scoreSemester", rs.getString("score_semester"));				
+				rsMap.put("scoreExamType", rs.getString("시험구분"));				
+				rsMap.put("scoreSubject", rs.getString("score_subject"));				
+				rsMap.put("scorePoint", rs.getInt("score_point"));				
 				
 				studentList.add(rsMap);
 
@@ -461,11 +473,11 @@ public class StudentDAO {
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setInt(1, studentIdx);
 						
-			resultChk = pstmt.executeUpdate(); // INSERT, UPDATE, DELETE
+			resultChk = pstmt.executeUpdate(); 
 			
-		}catch (SQLException e) {
+		} catch (SQLException e) {
 			System.out.println("error :" + e);
-		}finally {
+		} finally {
 			try {
 				
 				if(pstmt != null) {
@@ -510,13 +522,111 @@ public class StudentDAO {
 								 + "AND score_subject = ?;";
 			
 			pstmt = conn.prepareStatement(sql);
-			System.out.println(paramMap.toString());
+			// System.out.println(paramMap.toString());
 			pstmt.setInt(1, Integer.parseInt(paramMap.get("studentIdx").toString()));
 			pstmt.setString(2, paramMap.get("season").toString());
 			pstmt.setInt(3, Integer.parseInt(paramMap.get("semester").toString()));
 			pstmt.setString(4, paramMap.get("examType").toString());
 			pstmt.setString(5, paramMap.get("subject").toString());
 			
+			
+			resultChk = pstmt.executeUpdate(); // INSERT, UPDATE, DELETE
+			
+		}catch (SQLException e) {
+			System.out.println("error :" + e);
+		}finally {
+			try {
+				
+				if(pstmt != null) {
+					pstmt.close();
+				}
+				if(conn != null && conn.isClosed()) {
+					conn.close();
+				}
+			
+			}catch(SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return resultChk;
+	}
+	
+	// 성적 정보 갯수 반환 (학생 정보 삭제하기 위해 만든 메소드) 
+	public int selectStudentScoreCnt(int studentIdx) {
+		int cnt = 0;
+		
+		try {
+			Class.forName(driver);
+			conn = DriverManager.getConnection(db_url, "root", "1234");
+			if(conn != null) {
+
+			}
+		}catch(ClassNotFoundException e) {
+			System.out.println("드라이버 로드 실패");
+			e.printStackTrace();
+		}catch(SQLException e) {
+			System.out.println("접속 실패");
+			e.printStackTrace();
+		}
+		
+		try {
+			String sql = "SELECT COUNT(student_idx) AS cnt\r\n "
+								 + "FROM tb_student_score\r\n"
+								 + "WHERE student_idx =?;";
+
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, studentIdx);
+			
+			rs = pstmt.executeQuery();
+			
+			while(rs.next()) {
+				cnt = rs.getInt("cnt");
+			}
+			
+		}catch (SQLException e) {
+			// TODO: handle exception
+			System.out.println("error :" + e);
+		}finally {
+			try {
+				if(pstmt != null) {
+					pstmt.close();
+				}
+				if(conn != null && conn.isClosed()) {
+					conn.close();
+				}
+			
+			}catch(SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return cnt;
+	}
+	
+	// 성적 전체 삭제 (학생 정보 삭제하기 위해 만든 메소드)
+	public int deleteAllScore(int studentIdx) {
+		int resultChk = 0;
+		
+		try {
+			Class.forName(driver);
+			conn = DriverManager.getConnection(db_url, "root", "1234");
+			if(conn != null) {
+				System.out.println("접속성공");
+			}
+		}catch(ClassNotFoundException e) {
+			System.out.println("드라이버 로드 실패");
+			e.printStackTrace();
+		}catch(SQLException e) {
+			System.out.println("접속 실패");
+			e.printStackTrace();
+		}
+		
+		try {
+			String sql = "DELETE FROM tb_student_score\r\n"
+								 + "WHERE student_idx = ?;";
+			
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, studentIdx);
 			
 			resultChk = pstmt.executeUpdate(); // INSERT, UPDATE, DELETE
 			
@@ -608,6 +718,77 @@ public class StudentDAO {
 			}
 			
 			return studentList;
+		}
+		
+		// 성적 삭제(6)에 필요한 성적 출력 메소드
+		public List<HashMap<String, Object>> printStudentScore(int studentIdx){
+			List<HashMap<String, Object>> scoreList = new ArrayList();
+			
+			try {
+				Class.forName(driver);
+				conn = DriverManager.getConnection(db_url, "root", "1234");
+				if(conn != null) {
+
+				}
+			}catch(ClassNotFoundException e) {
+				System.out.println("드라이버 로드 실패");
+				e.printStackTrace();
+			}catch(SQLException e) {
+				System.out.println("접속 실패");
+				e.printStackTrace();
+			}
+			
+			try {
+				String sql = "SELECT  score_idx AS scoreIdx,\r\n"
+									 + "   score_season AS scoreSeason,\r\n"
+									 + "   score_semester AS scoreSemester,\r\n"
+									 + "   case when score_exam_type = 'M' then '중간고사'\r\n"
+									 + "		   	when score_exam_type = 'F' then '기말고사' END AS scoreExamType,\r\n"
+									 + "   score_subject AS scoreSubject,\r\n"
+									 + "   score_point AS scorePoint\r\n"
+									 + "FROM tb_student_score\r\n"
+									 + "WHERE student_idx = ?;";
+
+				pstmt = conn.prepareStatement(sql);
+				pstmt.setInt(1, studentIdx);
+				rs = pstmt.executeQuery();
+				
+				
+				while(rs.next()) {
+					HashMap<String, Object> rsMap = new HashMap<String, Object>();
+					rsMap.put("scoreIdx", rs.getString("scoreIdx"));	
+					rsMap.put("scoreSeason", rs.getString("scoreSeason"));	
+					rsMap.put("scoreSemester", rs.getInt("scoreSemester"));	
+					rsMap.put("scoreExamType", rs.getString("scoreExamType"));	
+					rsMap.put("scoreSubject", rs.getString("scoreSubject"));
+					rsMap.put("scorePoint", rs.getInt("scorePoint"));
+					
+					scoreList.add(rsMap);
+
+				}
+
+			}catch (SQLException e) {
+				// TODO: handle exception
+				System.out.println("error :" + e);
+			}finally {
+				try {
+					if(rs != null) {
+						rs.close();
+					}
+					
+					if(pstmt != null) {
+						pstmt.close();
+					}
+					if(conn != null && conn.isClosed()) {
+						conn.close();
+					}
+				
+				}catch(SQLException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			return scoreList;
 		}
 	
 }
